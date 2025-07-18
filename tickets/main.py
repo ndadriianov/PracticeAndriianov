@@ -18,13 +18,19 @@ def on_startup():
     wait_for_db()
 
 
-@app.get("/tickets/{id}")
-async def get_ticket_by_id(id: int, session: SessionDep):
-    ticket = session.exec(select(Ticket).where(Ticket.id == id)).all()
+@app.get("/tickets")
+async def get_ticket_by_id(session: SessionDep):
+    ticket = session.exec(select(Ticket)).all()
     return ticket
 
 
-@app.get("/tickets/{name}")
+@app.get("/tickets_by_id/{id}")
+async def get_ticket_by_id(id: int, session: SessionDep):
+    ticket = session.exec(select(Ticket).where(Ticket.id == id)).one()
+    return ticket
+
+
+@app.get("/tickets_by_name/{name}")
 async def get_tickets_by_name(name: str, session: SessionDep):
     tickets = session.exec(select(Ticket).where(Ticket.name == name)).all()
     return tickets
@@ -32,7 +38,7 @@ async def get_tickets_by_name(name: str, session: SessionDep):
 
 @app.post("/tickets/buy")
 async def buy_ticket(flight_id: int, name: str, session: SessionDep):
-    resp = requests.get(f"http://flights:8001/flights/{flight_id}", timeout=5)
+    resp = requests.get(f"http://flights:8000/flights/{flight_id}", timeout=5)
     if resp.status_code == 404:
         raise HTTPException(status_code=404, detail="Flight not found")
     if resp.status_code != 200:
@@ -46,7 +52,7 @@ async def buy_ticket(flight_id: int, name: str, session: SessionDep):
         .select_from(Ticket)
         .where(Ticket.flight_id == flight_id)
     )
-    sold: int = session.exec(sold_stmt).one()[0]
+    sold: int = session.exec(sold_stmt).one()
 
     if sold >= seats_total:
         raise HTTPException(status_code=400, detail="No seats left on this flight")

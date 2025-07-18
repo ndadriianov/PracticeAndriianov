@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from database.db import wait_for_db
 
 from models.flight import Flight
@@ -16,15 +16,23 @@ def on_startup():
     wait_for_db()
 
 
-@app.get("/flights/{destination}")
-async def get_flights(destination: str, session: SessionDep):
+@app.get("/flights/to/{destination}")
+async def get_flights_to_destination(destination: str, session: SessionDep):
     flights = session.exec(select(Flight).where(Flight.destination == destination)).all()
+    return flights
+
+
+@app.get("/flights")
+async def get_flights(session: SessionDep):
+    flights = session.exec(select(Flight)).all()
     return flights
 
 
 @app.get("/flights/{id}")
 async def get_flight(id: int, session: SessionDep):
-    flight = session.exec(select(Flight).where(Flight.id == id)).one()
+    flight = session.exec(select(Flight).where(Flight.id == id)).one_or_none()
+    if not flight:
+        raise HTTPException(status_code=404, detail="Flight not found")
     return flight
 
 
