@@ -10,7 +10,7 @@
 
 Для его остановки надо ввести:
 
-`docker compose dow`
+`docker compose down`
 
 Сервис flights доступен на http://localhost:8000/docs#/
 Сервис tickets доступен на http://localhost:8001/docs#/
