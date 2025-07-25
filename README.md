@@ -6,11 +6,11 @@
 
 Чтобы запустить проект надо ввести в консоль:
 
-'docker compose up --build -d'
+`docker compose up --build -d`
 
 Для его остановки надо ввести:
 
-'docker compose down'
+`docker compose dow`
 
 Сервис flights доступен на http://localhost:8000/docs#/
 Сервис tickets доступен на http://localhost:8001/docs#/
